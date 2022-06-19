@@ -23,6 +23,9 @@ def plot(Z2,fontsize=8,figsize=[5,5], pallete="gist_rainbow"):
     label_coords=[]
     for x, y, c in sorted(zip(Z2['icoord'], Z2['dcoord'],Z2["color_list"])):
     #x, y = Z2['icoord'][0], Z2['dcoord'][0]
+        _color=cmap[ucolors.index(c)]
+        if c=="C0": #np.abs(_xr1)<0.000000001 and np.abs(_yr1) <0.000000001:
+            _color="black"
         r=1-np.array(y)/ymax
         _x=np.cos(2*np.pi*np.array([x[0],x[2]])/xmax)
         _xr0=_x[0]*r[0]
@@ -35,23 +38,28 @@ def plot(Z2,fontsize=8,figsize=[5,5], pallete="gist_rainbow"):
         _yr2=_y[1]*r[2]
         _yr3=_y[1]*r[3]
         #plt.scatter([_xr0, _xr1, _xr2, _xr3],[_yr0, _yr1, _yr2,_yr3], c="b")
-        plt.plot([_xr0, _xr1], [_yr0, _yr1], c=cmap[ucolors.index(c)])
-        plt.plot([_xr2, _xr3], [_yr2,_yr3], c=cmap[ucolors.index(c)])
+        
+        
+        #if y[0]>0 and y[3]>0:
+            #_color="black"
+        
+        plt.plot([_xr0, _xr1], [_yr0, _yr1], c=_color)
+        plt.plot([_xr2, _xr3], [_yr2,_yr3], c=_color)
         if _yr1> 0 and _yr2>0:
             link=np.sqrt(r[1]**2-np.linspace(_xr1, _xr2, 100)**2)
-            plt.plot(np.linspace(_xr1, _xr2, 100), link, c=cmap[ucolors.index(c)])
+            plt.plot(np.linspace(_xr1, _xr2, 100), link, c=_color)
         elif _yr1 <0 and _yr2 <0:
             link=-np.sqrt(r[1]**2-np.linspace(_xr1, _xr2, 100)**2)
             
-            plt.plot(np.linspace(_xr1, _xr2, 100), link, c=cmap[ucolors.index(c)])
+            plt.plot(np.linspace(_xr1, _xr2, 100), link, c=_color)
         elif _yr1> 0 and _yr2 < 0:
             _r=r[1]
             if _xr1 <0 or _xr2 <0:
                 _r=-_r
             link=np.sqrt(r[1]**2-np.linspace(_xr1, _r, 100)**2)
-            plt.plot(np.linspace(_xr1, _r, 100), link, c=cmap[ucolors.index(c)])
+            plt.plot(np.linspace(_xr1, _r, 100), link, c=_color)
             link=-np.sqrt(r[1]**2-np.linspace(_r, _xr2, 100)**2)
-            plt.plot(np.linspace(_r, _xr2, 100), link, c=cmap[ucolors.index(c)])
+            plt.plot(np.linspace(_r, _xr2, 100), link, c=_color)
         if y[0]==0:
             label_coords.append([1.05*_xr0, 1.05*_yr0,360*x[0]/xmax])
             #plt.text(1.05*_xr0, 1.05*_yr0, Z2['ivl'][i],{'va': 'center'},rotation_mode='anchor', rotation=360*x[0]/xmax)
@@ -88,8 +96,9 @@ def plot(Z2,fontsize=8,figsize=[5,5], pallete="gist_rainbow"):
 if __name__=="__main__":
     # Generate random features and distance matrix.
     np.random.seed(1)
-    numleaf=24
-    labels=[chr(i)*10 for i in range(97, 97+numleaf)]
+    numleaf=48
+    _alphabets=[chr(i) for i in range(97, 97+24)]
+    labels=sorted(["".join(list(np.random.choice(_alphabets, 10))) for i in range(numleaf)])
     x = np.random.rand(numleaf)
     D = np.zeros([numleaf,numleaf])
     for i in range(numleaf):

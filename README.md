@@ -6,8 +6,8 @@ radialtree is a python module to draw a circular dendrogram.
 
 ## Install
 
-git clone xxxx
-cd radialtree
+git clone https://github.com/koonimaru/radialtree.git <br>
+cd radialtree <br>
 pip install .
 
 ## Example usage
