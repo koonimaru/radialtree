@@ -11,7 +11,7 @@ cd radialtree <br>
 pip install .
 
 ## Example usage
-```
+```python
 import scipy.cluster.hierarchy as sch
 import numpy as np
 import radialtree as rt
@@ -31,4 +31,4 @@ for i in range(numleaf):
 Y = sch.linkage(D, method='single')
 Z2 = sch.dendrogram(Y,labels=labels)
 rt.plot(Z2)
-```python
+```
