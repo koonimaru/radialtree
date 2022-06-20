@@ -3,6 +3,7 @@
 ## What is radialtree
 
 radialtree is a python module to draw a circular dendrogram.
+![example](example.png "example")
 
 ## Install
 
