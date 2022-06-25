@@ -34,6 +34,9 @@ rt.plot(Z2)
 ```
 ## Example usage 2 (adding color labels to the tree.)
 ```python
+import scipy.cluster.hierarchy as sch
+import numpy as np
+import radialtree as rt
 np.random.seed(1)
 numleaf=200
 _alphabets=[chr(i) for i in range(97, 97+24)]
@@ -61,5 +64,6 @@ colors_legends={"example_color":{"colors":_cmp(np.linspace(0, 1, type_num)),
 
 Y = sch.linkage(D, method='single')
 Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
-plot(Z2, colorlabels=colors_dict,colorlabels_legend=colors_legends)
+rt.plot(Z2, colorlabels=colors_dict,colorlabels_legend=colors_legends)
 ```
+![example2](example2.png "example2")
