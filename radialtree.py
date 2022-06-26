@@ -4,7 +4,13 @@ import numpy as np
 import matplotlib.cm as cm
 import matplotlib
 from matplotlib.lines import Line2D
-def plot(Z2,fontsize=8,figsize=[10,5], pallete="gist_rainbow", addlabels=True, show=True,colorlabels=None,colorlabels_legend=None):
+#import seaborn as sns 
+#sns.set_theme()
+
+colormap_list=["nipy_spectral", "terrain","gist_rainbow","CMRmap","coolwarm","gnuplot","gist_stern","brg","rainbow"]
+
+def plot(Z2,fontsize=8,figsize=[10,5], pallete="gist_rainbow", addlabels=True, show=True,sample_classes=None,colorlabels=None,
+         colorlabels_legend=None):
     """
     Drawing a radial dendrogram from a scipy dendrogram output.
     Parameters
@@ -40,11 +46,15 @@ def plot(Z2,fontsize=8,figsize=[10,5], pallete="gist_rainbow", addlabels=True, s
     Examples
     --------
     """
+    linewidth=0.5
     R=1
     width=R*0.1
     space=R*0.05
     if colorlabels != None:
         offset=width*len(colorlabels)/R+space*(len(colorlabels)-1)/R+0.05
+        print(offset)
+    elif sample_classes != None:
+        offset=width*len(sample_classes)/R+space*(len(sample_classes)-1)/R+0.05
         print(offset)
     else:
         offset=0
@@ -90,25 +100,25 @@ def plot(Z2,fontsize=8,figsize=[10,5], pallete="gist_rainbow", addlabels=True, s
         #if y[0]>0 and y[3]>0:
             #_color="black"
         #plotting radial lines
-        plt.plot([_xr0, _xr1], [_yr0, _yr1], c=_color)
-        plt.plot([_xr2, _xr3], [_yr2,_yr3], c=_color)
+        plt.plot([_xr0, _xr1], [_yr0, _yr1], c=_color,linewidth=linewidth)
+        plt.plot([_xr2, _xr3], [_yr2,_yr3], c=_color,linewidth=linewidth)
         
         #plotting circular links between nodes
         if _yr1> 0 and _yr2>0:
             link=np.sqrt(r[1]**2-np.linspace(_xr1, _xr2, 100)**2)
-            plt.plot(np.linspace(_xr1, _xr2, 100), link, c=_color)
+            plt.plot(np.linspace(_xr1, _xr2, 100), link, c=_color,linewidth=linewidth)
         elif _yr1 <0 and _yr2 <0:
             link=-np.sqrt(r[1]**2-np.linspace(_xr1, _xr2, 100)**2)
             
-            plt.plot(np.linspace(_xr1, _xr2, 100), link, c=_color)
+            plt.plot(np.linspace(_xr1, _xr2, 100), link, c=_color,linewidth=linewidth)
         elif _yr1> 0 and _yr2 < 0:
             _r=r[1]
             if _xr1 <0 or _xr2 <0:
                 _r=-_r
             link=np.sqrt(r[1]**2-np.linspace(_xr1, _r, 100)**2)
-            plt.plot(np.linspace(_xr1, _r, 100), link, c=_color)
+            plt.plot(np.linspace(_xr1, _r, 100), link, c=_color,linewidth=linewidth)
             link=-np.sqrt(r[1]**2-np.linspace(_r, _xr2, 100)**2)
-            plt.plot(np.linspace(_r, _xr2, 100), link, c=_color)
+            plt.plot(np.linspace(_r, _xr2, 100), link, c=_color,linewidth=linewidth)
         
         #Calculating the x, y coordinates and rotation angles of labels
         
@@ -128,6 +138,8 @@ def plot(Z2,fontsize=8,figsize=[10,5], pallete="gist_rainbow", addlabels=True, s
         #Adding labels
         for (_x, _y,_rot), label in zip(label_coords, Z2['ivl']):
             plt.text(_x, _y, label,{'va': 'center'},rotation_mode='anchor', rotation=_rot,fontsize=fontsize)
+    
+    
     
     if colorlabels != None:
         assert len(Z2['ivl'])==len(label_coords), "Internal error, label numbers "+str(len(Z2['ivl'])) +" and "+str(len(label_coords))+" must be equal!" 
@@ -157,23 +169,74 @@ def plot(Z2,fontsize=8,figsize=[10,5], pallete="gist_rainbow", addlabels=True, s
                     radius=outerrad,
                     counterclock=True,
                     startangle=label_coords[0][2]*0.5)
-            circle=plt.Circle((0,0),innerrad, fc='w')
+            circle=plt.Circle((0,0),innerrad, fc='whitesmoke')
             plt.gca().add_patch(circle)
             labelnames.append(labelname)
             j+=1
         
-    if colorlabels_legend!=None:
-        for i, labelname in enumerate(labelnames):
-            print(colorlabels_legend[labelname]["colors"])
-            colorlines=[]
-            for c in colorlabels_legend[labelname]["colors"]:
-                colorlines.append(Line2D([0], [0], color=c, lw=4))
-            leg=plt.legend(colorlines,
-                       colorlabels_legend[labelname]["labels"],
-                   bbox_to_anchor=(1.5+0.3*i, 1.0),
-                   title=labelname)
-            plt.gca().add_artist(leg)   
-    
+        if colorlabels_legend!=None:
+            for i, labelname in enumerate(labelnames):
+                print(colorlabels_legend[labelname]["colors"])
+                colorlines=[]
+                for c in colorlabels_legend[labelname]["colors"]:
+                    colorlines.append(Line2D([0], [0], color=c, lw=4))
+                leg=plt.legend(colorlines,
+                           colorlabels_legend[labelname]["labels"],
+                       bbox_to_anchor=(1.5+0.3*i, 1.0),
+                       title=labelname)
+                plt.gca().add_artist(leg)   
+    elif sample_classes!=None:
+        assert len(Z2['ivl'])==len(label_coords), "Internal error, label numbers "+str(len(Z2['ivl'])) +" and "+str(len(label_coords))+" must be equal!" 
+        
+        j=0
+        outerrad=R*1.05+width*len(sample_classes)+space*(len(sample_classes)-1)
+        print(outerrad)
+        #sort_index=np.argsort(Z2['icoord'])
+        #print(sort_index)
+        intervals=[]
+        for i in range(len(label_coords)):
+            _xl,_yl,_rotl =label_coords[i-1]
+            _x,_y,_rot =label_coords[i]
+            if i==len(label_coords)-1:
+                _xr,_yr,_rotr =label_coords[0]
+            else:
+                _xr,_yr,_rotr =label_coords[i+1]
+            d=((_xr-_xl)**2+(_yr-_yl)**2)**0.5
+            intervals.append(d)
+        colorpos=intervals#np.ones([len(label_coords)])
+        labelnames=[]
+        colorlabels_legend={}
+        for labelname, colorlist in sample_classes.items():
+            ucolors=sorted(list(np.unique(colorlist)))
+            type_num=len(ucolors)
+            _cmp=cm.get_cmap(colormap_list[j], type_num)
+            _colorlist=[_cmp(ucolors.index(c)/(type_num-1)) for c in colorlist]
+            _colorlist=np.array(_colorlist)[Z2['leaves']]
+            outerrad=outerrad-width*j-space*j
+            innerrad=outerrad-width
+            patches, texts =plt.pie(colorpos, colors=_colorlist,
+                    radius=outerrad,
+                    counterclock=True,
+                    startangle=label_coords[0][2]*0.5)
+            circle=plt.Circle((0,0),innerrad, fc='whitesmoke')
+            plt.gca().add_patch(circle)
+            labelnames.append(labelname)
+            colorlabels_legend[labelname]={}
+            colorlabels_legend[labelname]["colors"]=_cmp(np.linspace(0, 1, type_num))
+            colorlabels_legend[labelname]["labels"]=ucolors
+            j+=1
+        
+        if colorlabels_legend!=None:
+            for i, labelname in enumerate(labelnames):
+                print(colorlabels_legend[labelname]["colors"])
+                colorlines=[]
+                for c in colorlabels_legend[labelname]["colors"]:
+                    colorlines.append(Line2D([0], [0], color=c, lw=4))
+                leg=plt.legend(colorlines,
+                           colorlabels_legend[labelname]["labels"],
+                       bbox_to_anchor=(1.5+0.3*i, 1.0),
+                       title=labelname)
+                plt.gca().add_artist(leg)
             #break
     ax.spines.right.set_visible(False)
     ax.spines.top.set_visible(False)
@@ -181,16 +244,27 @@ def plot(Z2,fontsize=8,figsize=[10,5], pallete="gist_rainbow", addlabels=True, s
     ax.spines.bottom.set_visible(False)
     plt.xticks([])
     plt.yticks([])
-    maxr=R*1.05+width*len(colorlabels)+space*(len(colorlabels)-1)
+    if colorlabels!=None:
+        maxr=R*1.05+width*len(colorlabels)+space*(len(colorlabels)-1)
+    elif sample_classes !=None:
+        maxr=R*1.05+width*len(sample_classes)+space*(len(sample_classes)-1)
+    else:
+        maxr=R*1.05
     plt.xlim(-maxr,maxr)
     plt.ylim(-maxr,maxr)
     if show==True:
         plt.show()
     else:
         return ax
+
+def pandas_plot(df):
     
+    pass
+
+
 if __name__=="__main__":
     # Generate random features and distance matrix.
+    test=0
     np.random.seed(1)
     numleaf=200
     _alphabets=[chr(i) for i in range(97, 97+24)]
@@ -200,25 +274,36 @@ if __name__=="__main__":
     for i in range(numleaf):
         for j in range(numleaf):
             D[i,j] = abs(x[i] - x[j])
-    
-    #optionally leaves can be labeled by colors
-    type_num=12
-    _cmp=cm.get_cmap("bwr", type_num)
-    _cmp2=cm.get_cmap("hot", type_num)
-    colors_dict={"example_color":_cmp(np.random.rand(numleaf)),
-                 "example_color2":_cmp2(np.random.rand(numleaf))}
-    colors_legends={"example_color":{"colors":_cmp(np.linspace(0, 1, type_num)),
-                                     "labels": ["ex1_"+str(i+1) for i in range(type_num)]},
-                    "example_color2":{"colors":_cmp2(np.linspace(0, 1, type_num)),
-                                      "labels": ["ex2_"+str(i+1) for i in range(type_num)]}}
-    #fig = pylab.figure(figsize=(8,8))
-    
-    # Compute and plot the dendrogram.
-    #ax2 = fig.add_axes([0.3,0.71,0.6,0.2])
-    Y = sch.linkage(D, method='single')
-    Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
-   
-    plot(Z2, colorlabels=colors_dict,colorlabels_legend=colors_legends)
-    
-    
+    if test==1:
+        
+        #optionally leaves can be labeled by colors
+        type_num=12
+        _cmp=cm.get_cmap("bwr", type_num)
+        _cmp2=cm.get_cmap("hot", type_num)
+        colors_dict={"example_color":_cmp(np.random.rand(numleaf)),
+                     "example_color2":_cmp2(np.random.rand(numleaf))}
+        colors_legends={"example_color":{"colors":_cmp(np.linspace(0, 1, type_num)),
+                                         "labels": ["ex1_"+str(i+1) for i in range(type_num)]},
+                        "example_color2":{"colors":_cmp2(np.linspace(0, 1, type_num)),
+                                          "labels": ["ex2_"+str(i+1) for i in range(type_num)]}}
+        #fig = pylab.figure(figsize=(8,8))
+        
+        # Compute and plot the dendrogram.
+        #ax2 = fig.add_axes([0.3,0.71,0.6,0.2])
+        Y = sch.linkage(D, method='single')
+        Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
+       
+        plot(Z2, colorlabels=colors_dict,colorlabels_legend=colors_legends)
+    elif test==2:
+        Y = sch.linkage(D, method='single')
+        Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
+        type_num=6
+        type_list=["ex"+str(i) for i in range(type_num)]
+        sample_classes={"example_color": [np.random.choice(type_list) for i in range(numleaf)]}
+        plot(Z2, sample_classes=sample_classes)
+    elif test==0:
+        Y = sch.linkage(D, method='single')
+        Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
+       
+        plot(Z2)
     
