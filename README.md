@@ -67,3 +67,17 @@ Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
 rt.plot(Z2, colorlabels=colors_dict,colorlabels_legend=colors_legends)
 ```
 ![example2](example2.png "example2")
+
+## Example usage 3 (adding color labels to the tree automatically (rather simpler than Example 2).)
+```python
+import scipy.cluster.hierarchy as sch
+import numpy as np
+import radialtree as rt
+np.random.seed(1)
+Y = sch.linkage(D, method='single')
+Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
+type_num=6
+type_list=["ex"+str(i) for i in range(type_num)]
+sample_classes={"example_color": [np.random.choice(type_list) for i in range(numleaf)]}
+plot(Z2, sample_classes=sample_classes)
+```

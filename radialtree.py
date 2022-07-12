@@ -17,12 +17,19 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
     ----------
     Z2 : dictionary
         A dictionary returned by scipy.cluster.hierarchy.dendrogram
+    addlabels: bool
+        A bool to choose if labels are shown.
     fontsize : float
         A float to specify the font size
     figsize : [x, y] array-like
         1D array-like of floats to specify the figure size
     pallete : string
         Matlab colormap name.
+    sample_classes : dict
+        A dictionary that contains lists of sample subtypes or classes. These classes appear 
+        as color labels of each leaf. Colormaps are automatically assigned. Not compatible 
+        with options "colorlabels" and "colorlabels_legend".
+        e.g., {"color1":["Class1","Class2","Class1","Class3", ....]} 
     colorlabels : dict
         A dictionary to set color labels to leaves. The key is the name of the color label. 
         The value is the list of RGB color codes, each corresponds to the color of a leaf. 
@@ -262,6 +269,10 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
         plt.show()
     else:
         return ax
+
+def mat_plot(mat):
+    #Take a matrix data instead of a dendrogram data, calculate dendrogram and draw a circular dendrogram
+    pass 
 
 def pandas_plot(df):
     
