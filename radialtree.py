@@ -109,25 +109,25 @@ def radialTreee(Z2,fontsize=8,ax:Axes or None=None, pallete="gist_rainbow", addl
         #if y[0]>0 and y[3]>0:
             #_color="black"
         #plotting radial lines
-        plt.plot([_xr0, _xr1], [_yr0, _yr1], c=_color,linewidth=linewidth)
-        plt.plot([_xr2, _xr3], [_yr2,_yr3], c=_color,linewidth=linewidth)
+        ax.plot([_xr0, _xr1], [_yr0, _yr1], c=_color,linewidth=linewidth)
+        ax.plot([_xr2, _xr3], [_yr2,_yr3], c=_color,linewidth=linewidth)
         
         #plotting circular links between nodes
         if _yr1> 0 and _yr2>0:
             link=np.sqrt(r[1]**2-np.linspace(_xr1, _xr2, 100)**2)
-            plt.plot(np.linspace(_xr1, _xr2, 100), link, c=_color,linewidth=linewidth)
+            ax.plot(np.linspace(_xr1, _xr2, 100), link, c=_color,linewidth=linewidth)
         elif _yr1 <0 and _yr2 <0:
             link=-np.sqrt(r[1]**2-np.linspace(_xr1, _xr2, 100)**2)
             
-            plt.plot(np.linspace(_xr1, _xr2, 100), link, c=_color,linewidth=linewidth)
+            ax.plot(np.linspace(_xr1, _xr2, 100), link, c=_color,linewidth=linewidth)
         elif _yr1> 0 and _yr2 < 0:
             _r=r[1]
             if _xr1 <0 or _xr2 <0:
                 _r=-_r
             link=np.sqrt(r[1]**2-np.linspace(_xr1, _r, 100)**2)
-            plt.plot(np.linspace(_xr1, _r, 100), link, c=_color,linewidth=linewidth)
+            ax.plot(np.linspace(_xr1, _r, 100), link, c=_color,linewidth=linewidth)
             link=-np.sqrt(r[1]**2-np.linspace(_r, _xr2, 100)**2)
-            plt.plot(np.linspace(_r, _xr2, 100), link, c=_color,linewidth=linewidth)
+            ax.plot(np.linspace(_r, _xr2, 100), link, c=_color,linewidth=linewidth)
         
         #Calculating the x, y coordinates and rotation angles of labels
         
@@ -335,7 +335,7 @@ def pandas_plot(df):
     pass
 
 
-def test_1(Z2):
+def _test_1(Z2):
     #optionally leaves can be labeled by colors
     type_num=12
     _cmp=cm.get_cmap("bwr", type_num)
@@ -351,18 +351,54 @@ def test_1(Z2):
     # Compute and plot the dendrogram.
     #ax2 = fig.add_axes([0.3,0.71,0.6,0.2])
     
-    
-    plot(Z2, colorlabels=colors_dict,colorlabels_legend=colors_legends,show=True)
+    fig, ax = plt.subplots(figsize=(10,5))
+    #plot(Z2, colorlabels=colors_dict,colorlabels_legend=colors_legends,show=True)
+    radialTreee(Z2,ax=ax,  colorlabels=colors_dict,colorlabels_legend=colors_legends)
+    fig.show()
 
-def test_2(Z2):
+def _test_2(Z2):
     type_num=6
     type_list=["ex"+str(i) for i in range(type_num)]
     sample_classes={"example_color": [np.random.choice(type_list) for i in range(numleaf)]}
-    plot(Z2, sample_classes=sample_classes,show=True)
+    fig, ax = plt.subplots(figsize=(10,5))
+    radialTreee(Z2,ax=ax, sample_classes=sample_classes)
+    fig.show()
+    #plot(Z2, sample_classes=sample_classes,show=True)
+
+def _test_3(Z2):
+    fig, ax = plt.subplots(2,2, figsize=(10,10))
+    ax = ax.flatten()
+    #no arguments
+    radialTreee(Z2,ax=ax[0])
+    ax[0].set_aspect(1)
+
+    type_num=12
+    _cmp=cm.get_cmap("bwr", type_num)
+    _cmp2=cm.get_cmap("hot", type_num)
+    colors_dict={"example_color":_cmp(np.random.rand(numleaf)),
+                    "example_color2":_cmp2(np.random.rand(numleaf))}
+    colors_legends={"example_color":{"colors":_cmp(np.linspace(0, 1, type_num)),
+                                        "labels": ["ex1_"+str(i+1) for i in range(type_num)]},
+                    "example_color2":{"colors":_cmp2(np.linspace(0, 1, type_num)),
+                                        "labels": ["ex2_"+str(i+1) for i in range(type_num)]}}
+    #fig = pylab.figure(figsize=(8,8))
+    
+    # Compute and plot the dendrogram.
+    #ax2 = fig.add_axes([0.3,0.71,0.6,0.2])
+    
+    #like in test_1
+    radialTreee(Z2,ax=ax[1], colorlabels=colors_dict,colorlabels_legend=colors_legends)
+
+
+    type_num=6
+    type_list=["ex"+str(i) for i in range(type_num)]
+    sample_classes={"example_color": [np.random.choice(type_list) for i in range(numleaf)]}
+    radialTreee(Z2,ax=ax[2], sample_classes=sample_classes)
+    fig.show()
 
 if __name__=="__main__":
     # Generate random features and distance matrix.
-    test=[0,1,2]
+    test=[0,1,2,3]
     np.random.seed(1)
     numleaf=200
     _alphabets=[chr(i) for i in range(97, 97+24)]
@@ -374,16 +410,17 @@ if __name__=="__main__":
             D[i,j] = abs(x[i] - x[j])
     Y = sch.linkage(D, method='single')
     Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
-    if 1 in test:
-        test_1(Z2)
-        
-    if 2 in test:
-        test_2(Z2)
-        
     if 0 in test:
         plot(Z2,show=True)
+
+    if 1 in test:
+        _test_1(Z2)
         
-       
-        
+    if 2 in test:
+        _test_2(Z2) 
+
+    if 3 in test:
+        _test_3(Z2)
+    
     plt.show()
     
