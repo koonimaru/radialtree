@@ -1,7 +1,9 @@
 import scipy.cluster.hierarchy as sch
 import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
 import numpy as np
 import matplotlib.cm as cm
+from matplotlib.axes import Axes
 import matplotlib
 from matplotlib.lines import Line2D
 #import seaborn as sns 
@@ -9,7 +11,7 @@ from matplotlib.lines import Line2D
 
 colormap_list=["nipy_spectral", "terrain","gist_rainbow","CMRmap","coolwarm","gnuplot","gist_stern","brg","rainbow"]
 
-def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, show=True,sample_classes=None,colorlabels=None,
+def radialTreee(Z2,fontsize=8,ax:Axes or None=None, pallete="gist_rainbow", addlabels=True,sample_classes=None,colorlabels=None,
          colorlabels_legend=None):
     """
     Drawing a radial dendrogram from a scipy dendrogram output.
@@ -21,8 +23,8 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
         A bool to choose if labels are shown.
     fontsize : float
         A float to specify the font size
-    figsize : [x, y] array-like
-        1D array-like of floats to specify the figure size
+    ax : Axes or None:
+        the ax where to plot the
     pallete : string
         Matlab colormap name.
     sample_classes : dict
@@ -53,12 +55,8 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
     Examples
     --------
     """
-    if figsize==None and colorlabels != None:
-        figsize=[10,5]
-    elif figsize==None and sample_classes != None:
-        figsize=[10,5]
-    elif figsize==None :
-        figsize=[5,5]
+    if ax is None:
+        ax:Axes = plt.gca()
     linewidth=0.5
     R=1
     width=R*0.1
@@ -71,9 +69,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
         print(offset)
     else:
         offset=0
-    plt.rcParams['font.family']= 'sans-serif'
-    plt.rcParams['font.sans-serif'] = ['Arial']
-    plt.rcParams['svg.fonttype'] = 'none'
+    
     xmax=np.amax(Z2['icoord'])
     ymax=np.amax(Z2['dcoord'])
     
@@ -85,7 +81,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
         cmap = cmp(np.linspace(0, 1, len(ucolors)))
     else:
         cmap=cmp.colors
-    fig, ax=plt.subplots(figsize=figsize)
+    
     i=0
     label_coords=[]
     for x, y, c in sorted(zip(Z2['icoord'], Z2['dcoord'],Z2["color_list"])):
@@ -150,7 +146,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
         
         #Adding labels
         for (_x, _y,_rot), label in zip(label_coords, Z2['ivl']):
-            plt.text(_x, _y, label,{'va': 'center'},rotation_mode='anchor', rotation=_rot,fontsize=fontsize)
+            ax.text(_x, _y, label,{'va': 'center'},rotation_mode='anchor', rotation=_rot,fontsize=fontsize)
     
     
     
@@ -182,8 +178,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
                     radius=outerrad,
                     counterclock=True,
                     startangle=label_coords[0][2]*0.5)
-            circle=plt.Circle((0,0),innerrad, fc='whitesmoke')
-            plt.gca().add_patch(circle)
+            ax.add_patch(Circle((0,0),innerrad, fc='whitesmoke'))
             labelnames.append(labelname)
             j+=1
         
@@ -193,11 +188,11 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
                 colorlines=[]
                 for c in colorlabels_legend[labelname]["colors"]:
                     colorlines.append(Line2D([0], [0], color=c, lw=4))
-                leg=plt.legend(colorlines,
+                leg=ax.legend(colorlines,
                            colorlabels_legend[labelname]["labels"],
                        bbox_to_anchor=(1.5+0.3*i, 1.0),
                        title=labelname)
-                plt.gca().add_artist(leg)   
+                ax.add_artist(leg)   
     elif sample_classes!=None:
         assert len(Z2['ivl'])==len(label_coords), "Internal error, label numbers "+str(len(Z2['ivl'])) +" and "+str(len(label_coords))+" must be equal!" 
         
@@ -227,12 +222,11 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
             _colorlist=np.array(_colorlist)[Z2['leaves']]
             outerrad=outerrad-width*j-space*j
             innerrad=outerrad-width
-            patches, texts =plt.pie(colorpos, colors=_colorlist,
+            patches, texts =ax.pie(colorpos, colors=_colorlist,
                     radius=outerrad,
                     counterclock=True,
                     startangle=label_coords[0][2]*0.5)
-            circle=plt.Circle((0,0),innerrad, fc='whitesmoke')
-            plt.gca().add_patch(circle)
+            ax.add_patch(Circle((0,0),innerrad, fc='whitesmoke'))
             labelnames.append(labelname)
             colorlabels_legend[labelname]={}
             colorlabels_legend[labelname]["colors"]=_cmp(np.linspace(0, 1, type_num))
@@ -245,30 +239,92 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
                 colorlines=[]
                 for c in colorlabels_legend[labelname]["colors"]:
                     colorlines.append(Line2D([0], [0], color=c, lw=4))
-                leg=plt.legend(colorlines,
+                leg=ax.legend(colorlines,
                            colorlabels_legend[labelname]["labels"],
                        bbox_to_anchor=(1.5+0.3*i, 1.0),
                        title=labelname)
-                plt.gca().add_artist(leg)
+                ax.add_artist(leg)
             #break
     ax.spines.right.set_visible(False)
     ax.spines.top.set_visible(False)
     ax.spines.left.set_visible(False)
     ax.spines.bottom.set_visible(False)
-    plt.xticks([])
-    plt.yticks([])
+    ax.set_xticks([])
+    ax.set_yticks([])
     if colorlabels!=None:
         maxr=R*1.05+width*len(colorlabels)+space*(len(colorlabels)-1)
     elif sample_classes !=None:
         maxr=R*1.05+width*len(sample_classes)+space*(len(sample_classes)-1)
     else:
         maxr=R*1.05
-    plt.xlim(-maxr,maxr)
-    plt.ylim(-maxr,maxr)
+    ax.set_xlim(-maxr,maxr)
+    ax.set_ylim(-maxr,maxr)
+    return ax
+    
+def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, show=True,sample_classes=None,colorlabels=None,
+         colorlabels_legend=None):
+    """
+    Drawing a radial dendrogram from a scipy dendrogram output.
+    Parameters
+    ----------
+    Z2 : dictionary
+        A dictionary returned by scipy.cluster.hierarchy.dendrogram
+    addlabels: bool
+        A bool to choose if labels are shown.
+    fontsize : float
+        A float to specify the font size
+    figsize : [x, y] array-like
+        1D array-like of floats to specify the figure size
+    pallete : string
+        Matlab colormap name.
+    sample_classes : dict
+        A dictionary that contains lists of sample subtypes or classes. These classes appear 
+        as color labels of each leaf. Colormaps are automatically assigned. Not compatible 
+        with options "colorlabels" and "colorlabels_legend".
+        e.g., {"color1":["Class1","Class2","Class1","Class3", ....]} 
+    colorlabels : dict
+        A dictionary to set color labels to leaves. The key is the name of the color label. 
+        The value is the list of RGB color codes, each corresponds to the color of a leaf. 
+        e.g., {"color1":[[1,0,0,1], ....]}   
+    colorlabels_legend : dict
+        A nested dictionary to generate the legends of color labels. The key is the name of 
+        the color label. The value is a dictionary that has two keys "colors" and "labels". 
+        The value of "colors" is the list of RGB color codes, each corresponds to the class of a leaf. 
+        e.g., {"color1":{"colors":[[1,0,0,1], ....], "labels":["label1","label2",...]}}   
+    
+    Returns
+    -------
+    Raises
+    ------
+    Notes
+    -----
+    References
+    ----------
+    See Also
+    --------
+    Examples
+    --------
+    """
+    
+    plt.rcParams['font.family']= 'sans-serif'
+    plt.rcParams['font.sans-serif'] = ['Arial']
+    plt.rcParams['svg.fonttype'] = 'none'
+    
+    if figsize==None and colorlabels != None:
+        figsize=[10,5]
+    elif figsize==None and sample_classes != None:
+        figsize=[10,5]
+    elif figsize==None :
+        figsize=[5,5]
+    fig, ax=plt.subplots(figsize=figsize)
+    ax = radialTreee(Z2,fontsize=fontsize,ax=ax, pallete=pallete, addlabels=addlabels,sample_classes=sample_classes,colorlabels=colorlabels,
+         colorlabels_legend=colorlabels_legend)
+
     if show==True:
-        plt.show()
+        fig.show()
     else:
         return ax
+    
 
 def mat_plot(mat):
     #Take a matrix data instead of a dendrogram data, calculate dendrogram and draw a circular dendrogram
@@ -279,9 +335,34 @@ def pandas_plot(df):
     pass
 
 
+def test_1(Z2):
+    #optionally leaves can be labeled by colors
+    type_num=12
+    _cmp=cm.get_cmap("bwr", type_num)
+    _cmp2=cm.get_cmap("hot", type_num)
+    colors_dict={"example_color":_cmp(np.random.rand(numleaf)),
+                    "example_color2":_cmp2(np.random.rand(numleaf))}
+    colors_legends={"example_color":{"colors":_cmp(np.linspace(0, 1, type_num)),
+                                        "labels": ["ex1_"+str(i+1) for i in range(type_num)]},
+                    "example_color2":{"colors":_cmp2(np.linspace(0, 1, type_num)),
+                                        "labels": ["ex2_"+str(i+1) for i in range(type_num)]}}
+    #fig = pylab.figure(figsize=(8,8))
+    
+    # Compute and plot the dendrogram.
+    #ax2 = fig.add_axes([0.3,0.71,0.6,0.2])
+    
+    
+    plot(Z2, colorlabels=colors_dict,colorlabels_legend=colors_legends,show=True)
+
+def test_2(Z2):
+    type_num=6
+    type_list=["ex"+str(i) for i in range(type_num)]
+    sample_classes={"example_color": [np.random.choice(type_list) for i in range(numleaf)]}
+    plot(Z2, sample_classes=sample_classes,show=True)
+
 if __name__=="__main__":
     # Generate random features and distance matrix.
-    test=0
+    test=[0,1,2]
     np.random.seed(1)
     numleaf=200
     _alphabets=[chr(i) for i in range(97, 97+24)]
@@ -291,36 +372,18 @@ if __name__=="__main__":
     for i in range(numleaf):
         for j in range(numleaf):
             D[i,j] = abs(x[i] - x[j])
-    if test==1:
+    Y = sch.linkage(D, method='single')
+    Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
+    if 1 in test:
+        test_1(Z2)
         
-        #optionally leaves can be labeled by colors
-        type_num=12
-        _cmp=cm.get_cmap("bwr", type_num)
-        _cmp2=cm.get_cmap("hot", type_num)
-        colors_dict={"example_color":_cmp(np.random.rand(numleaf)),
-                     "example_color2":_cmp2(np.random.rand(numleaf))}
-        colors_legends={"example_color":{"colors":_cmp(np.linspace(0, 1, type_num)),
-                                         "labels": ["ex1_"+str(i+1) for i in range(type_num)]},
-                        "example_color2":{"colors":_cmp2(np.linspace(0, 1, type_num)),
-                                          "labels": ["ex2_"+str(i+1) for i in range(type_num)]}}
-        #fig = pylab.figure(figsize=(8,8))
+    if 2 in test:
+        test_2(Z2)
         
-        # Compute and plot the dendrogram.
-        #ax2 = fig.add_axes([0.3,0.71,0.6,0.2])
-        Y = sch.linkage(D, method='single')
-        Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
+    if 0 in test:
+        plot(Z2,show=True)
+        
        
-        plot(Z2, colorlabels=colors_dict,colorlabels_legend=colors_legends)
-    elif test==2:
-        Y = sch.linkage(D, method='single')
-        Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
-        type_num=6
-        type_list=["ex"+str(i) for i in range(type_num)]
-        sample_classes={"example_color": [np.random.choice(type_list) for i in range(numleaf)]}
-        plot(Z2, sample_classes=sample_classes)
-    elif test==0:
-        Y = sch.linkage(D, method='single')
-        Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
-       
-        plot(Z2)
+        
+    plt.show()
     
