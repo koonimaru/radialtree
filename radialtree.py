@@ -97,8 +97,14 @@ def radialTreee(
         offset = 0
 
     xmax = np.amax(Z2["icoord"])
+    xmin = np.amin(Z2["icoord"])
     ymax = np.amax(Z2["dcoord"])
-
+    # print(
+    #     f"{xmax=}",
+    #     np.amin(Z2["icoord"]),
+    #     (xmax - xmin) / (len(Z2["ivl"]) - 1),
+    #     (len(Z2["ivl"])),
+    # )
     ucolors = sorted(set(Z2["color_list"]))
     # cmap = cm.gist_rainbow(np.linspace(0, 1, len(ucolors)))
     cmp = cm.get_cmap(pallete, len(ucolors))
@@ -108,9 +114,8 @@ def radialTreee(
     else:
         cmap = cmp.colors
 
-    i = 0
-    label_coords = []
-    for x, y, c in sorted(zip(Z2["icoord"], Z2["dcoord"], Z2["color_list"])):
+    nlabels = 0
+    for icoord, dcoord, c in sorted(zip(Z2["icoord"], Z2["dcoord"], Z2["color_list"])):
         # x, y = Z2['icoord'][0], Z2['dcoord'][0]
         _color = cmap[ucolors.index(c)]
         if c == "C0":  # np.abs(_xr1)<0.000000001 and np.abs(_yr1) <0.000000001:
@@ -118,16 +123,16 @@ def radialTreee(
 
         # transforming original x coordinates into relative circumference positions and y into radius
         # the rightmost leaf is going to [1, 0]
-        r = R * (1 - np.array(y) / ymax)
+        r = R * (1 - np.array(dcoord) / ymax)
         _x = np.cos(
-            2 * np.pi * np.array([x[0], x[2]]) / xmax
+            2 * np.pi * np.array([icoord[0], icoord[2]]) / xmax
         )  # transforming original x coordinates into x circumference positions
         _xr0 = _x[0] * r[0]
         _xr1 = _x[0] * r[1]
         _xr2 = _x[1] * r[2]
         _xr3 = _x[1] * r[3]
         _y = np.sin(
-            2 * np.pi * np.array([x[0], x[2]]) / xmax
+            2 * np.pi * np.array([icoord[0], icoord[2]]) / xmax
         )  # transforming original x coordinates into y circumference positions
         _yr0 = _y[0] * r[0]
         _yr1 = _y[0] * r[1]
@@ -158,31 +163,24 @@ def radialTreee(
             link = -np.sqrt(r[1] ** 2 - np.linspace(_r, _xr2, 100) ** 2)
             ax.plot(np.linspace(_r, _xr2, 100), link, c=_color, linewidth=linewidth)
 
-        # Calculating the x, y coordinates and rotation angles of labels
-
-        if y[0] == 0:
-            label_coords.append(
-                [(1.05 + offset) * _xr0, (1.05 + offset) * _yr0, 360 * x[0] / xmax]
-            )
-            # ax.text(1.05*_xr0, 1.05*_yr0, Z2['ivl'][i],{'va': 'center'},rotation_mode='anchor', rotation=360*x[0]/xmax)
-            i += 1
-        if y[3] == 0:
-            label_coords.append(
-                [(1.05 + offset) * _xr3, (1.05 + offset) * _yr3, 360 * x[2] / xmax]
-            )
-            # ax.text(1.05*_xr3, 1.05*_yr3, Z2['ivl'][i],{'va': 'center'},rotation_mode='anchor', rotation=360*x[2]/xmax)
-            i += 1
-
+    label_coords = []
+    # determine the coordiante of the labels and their rotation:
+    for i, label in enumerate(Z2["ivl"]):
+        # scipy (1.x.x) places the leaves in x = 5+i*10 , and we can use this
+        # to calulate where to put the labels
+        place = (5.0 + i * 10.0) / xmax * 2
+        label_coords.append(
+            [
+                np.cos(place * np.pi) * (1.05 + offset),  # _x
+                np.sin(place * np.pi) * (1.05 + offset),  # _y
+                place * 180,  # _rot
+            ]
+        )
     if addlabels == True:
         assert len(Z2["ivl"]) == len(label_coords), (
-            "Internal error, label numbers "
-            + str(len(Z2["ivl"]))
-            + " and "
-            + str(len(label_coords))
-            + " must be equal!"
+            f'Internal error, label numbers for Z2 ({len(Z2["ivl"])})'
+            f" and for calculated labels ({len(label_coords)}) must be equal!"
         )
-
-        # Adding labels
         for (_x, _y, _rot), label in zip(label_coords, Z2["ivl"]):
             ax.text(
                 _x,
@@ -285,7 +283,7 @@ def radialTreee(
             ucolors = sorted(list(np.unique(colorlist)))
             type_num = len(ucolors)
             _cmp = cm.get_cmap(colormap_list[j], type_num)
-            _colorlist = [_cmp(ucolors.index(c) / (type_num - 1)) for c in colorlist]
+            _colorlist = [_cmp(ucolors.index(c)) for c in colorlist]
             _colorlist = np.array(_colorlist)[Z2["leaves"]]
             outerrad = outerrad - width * j - space * j
             innerrad = outerrad - width
