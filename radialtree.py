@@ -230,8 +230,12 @@ def radialTreee(
                 radius=outerrad,
                 counterclock=True,
                 startangle=label_coords[0][2] * 0.5,
+                wedgeprops=dict(
+                    width=width,
+                    # edgecolor='w', #if this is active the wedges will be more clearly separated
+                ),
             )
-            ax.add_patch(Circle((0, 0), innerrad, fc="whitesmoke"))
+
             labelnames.append(labelname)
             j += 1
 
@@ -291,8 +295,12 @@ def radialTreee(
                 radius=outerrad,
                 counterclock=True,
                 startangle=label_coords[0][2] * 0.5,
+                wedgeprops=dict(
+                    width=width,
+                    # edgecolor='w', #if this is active the wedges will be more clearly separated
+                ),
             )
-            ax.add_patch(Circle((0, 0), innerrad, fc="whitesmoke"))
+
             labelnames.append(labelname)
             colorlabels_legend[labelname] = {}
             colorlabels_legend[labelname]["colors"] = _cmp(np.linspace(0, 1, type_num))
