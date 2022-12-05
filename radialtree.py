@@ -11,7 +11,7 @@ from matplotlib.lines import Line2D
 
 colormap_list=["nipy_spectral", "terrain","gist_rainbow","CMRmap","coolwarm","gnuplot","gist_stern","brg","rainbow"]
 
-def radialTreee(Z2,fontsize=8,ax:Axes or None=None, pallete="gist_rainbow", addlabels=True,sample_classes=None,colorlabels=None,
+def radialTreee(Z2,fontsize=8,ax:Axes=None, pallete="gist_rainbow", addlabels=True,sample_classes=None,colorlabels=None,
          colorlabels_legend=None):
     """
     Drawing a radial dendrogram from a scipy dendrogram output.
@@ -24,7 +24,7 @@ def radialTreee(Z2,fontsize=8,ax:Axes or None=None, pallete="gist_rainbow", addl
     fontsize : float
         A float to specify the font size
     ax : Axes or None:
-        the ax where to plot the
+        Axes in which to draw the plot, otherwise use the currently-active Axes.
     pallete : string
         Matlab colormap name.
     sample_classes : dict
