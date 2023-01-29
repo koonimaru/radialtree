@@ -176,7 +176,8 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
         labelnames=[]
         for labelname, colorlist in colorlabels.items():
             colorlist=np.array(colorlist)[Z2['leaves']]
-            outerrad=outerrad-width*j-space*j
+            if j!=0:
+                outerrad=outerrad-width-space
             innerrad=outerrad-width
             patches, texts =plt.pie(colorpos, colors=colorlist,
                     radius=outerrad,
@@ -225,7 +226,8 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
             _cmp=cm.get_cmap(colormap_list[j], type_num)
             _colorlist=[_cmp(ucolors.index(c)/(type_num-1)) for c in colorlist]
             _colorlist=np.array(_colorlist)[Z2['leaves']]
-            outerrad=outerrad-width*j-space*j
+            if j!=0:
+                outerrad=outerrad-width-space
             innerrad=outerrad-width
             patches, texts =plt.pie(colorpos, colors=_colorlist,
                     radius=outerrad,
