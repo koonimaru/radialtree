@@ -6,10 +6,13 @@ radialtree is a python module to draw a circular dendrogram using a output from 
 ![example](example.png "example")
 
 ## Install
-
-git clone https://github.com/koonimaru/radialtree.git <br>
-cd radialtree <br>
+```bash
+git clone https://github.com/koonimaru/radialtree.git
+cd radialtree
 pip install .
+```
+Please note that radialtree is now integreated into [omniplot](https://github.com/koonimaru/omniplot) module with an improvement. 
+
 
 ## Example usage
 ```python
