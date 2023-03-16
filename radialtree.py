@@ -155,7 +155,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
                   (e.g., too many similar samples) or a bug from scipy.")
         
         #Adding labels
-        for (_x, _y,_rot), label in zip(label_coords, Z2['leaves']):
+        for (_x, _y,_rot), label in zip(label_coords, Z2['ivl']):
             plt.text(_x, _y, label,{'va': 'center'},rotation_mode='anchor', rotation=_rot,fontsize=fontsize)
     
     
