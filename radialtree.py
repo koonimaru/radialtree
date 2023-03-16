@@ -9,8 +9,8 @@ from matplotlib.lines import Line2D
 
 colormap_list=["nipy_spectral", "terrain","gist_rainbow","CMRmap","coolwarm","gnuplot","gist_stern","brg","rainbow"]
 
-def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, show=True,sample_classes=None,colorlabels=None,
-         colorlabels_legend=None):
+def plot(Z2,fontsize=8,figsize=None, palette="gist_rainbow", addlabels=True, show=True,sample_classes=None,colorlabels=None,
+         colorlabels_legend=None, xticks=set()):
     """
     Drawing a radial dendrogram from a scipy dendrogram output.
     Parameters
@@ -23,7 +23,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
         A float to specify the font size
     figsize : [x, y] array-like
         1D array-like of floats to specify the figure size
-    pallete : string
+    palette : string
         Matlab colormap name.
     sample_classes : dict
         A dictionary that contains lists of sample subtypes or classes. These classes appear 
@@ -53,6 +53,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
     Examples
     --------
     """
+    xticks=set(xticks)
     if figsize==None and colorlabels != None:
         figsize=[10,5]
     elif figsize==None and sample_classes != None:
@@ -79,7 +80,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
     
     ucolors=sorted(set(Z2["color_list"]))
     #cmap = cm.gist_rainbow(np.linspace(0, 1, len(ucolors)))
-    cmp=cm.get_cmap(pallete, len(ucolors))
+    cmp=cm.get_cmap(palette, len(ucolors))
     #print(cmp)
     if type(cmp) == matplotlib.colors.LinearSegmentedColormap:
         cmap = cmp(np.linspace(0, 1, len(ucolors)))
@@ -89,6 +90,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
     i=0
     label_coords=[]
     labels=[]
+    seen_x=set()
     for x, y, c in sorted(zip(Z2['icoord'], Z2['dcoord'],Z2["color_list"]) ):
         
     #x, y = Z2['icoord'][0], Z2['dcoord'][0]
@@ -136,14 +138,28 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
             plt.plot(np.linspace(_r, _xr2, 100), link, c=_color,linewidth=linewidth)
         
         #Calculating the x, y coordinates and rotation angles of labels
-        
-        if y[0]==0:
+     
+        _append=False
+        if len(xticks)==0:
+            _append=y[0]==0
+        else:
+            _append=x[0] in xticks and y[0]==0
+
+        if _append==True:
             label_coords.append([(1.05+offset)*_xr0, (1.05+offset)*_yr0,360*x[0]/xmax])
+            
             #plt.text(1.05*_xr0, 1.05*_yr0, Z2['ivl'][i],{'va': 'center'},rotation_mode='anchor', rotation=360*x[0]/xmax)
             #labels.append(label)
             i+=1
-        if y[3]==0:
+        _append=False
+        if len(xticks)==0:
+            _append=y[3]==0
+        else:
+            _append=x[3] in xticks and y[3]==0
+
+        if _append==True:
             label_coords.append([(1.05+offset)*_xr3, (1.05+offset)*_yr3,360*x[2]/xmax])
+            
             #plt.text(1.05*_xr3, 1.05*_yr3, Z2['ivl'][i],{'va': 'center'},rotation_mode='anchor', rotation=360*x[2]/xmax)
             #labels.append(label)
             i+=1
@@ -152,7 +168,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
     if addlabels==True:
         if len(Z2['ivl'])!=len(label_coords):
             print("Warning several labels (samples) may be missing in the tree. This may be due to the data structure you have \
-                  (e.g., too many similar samples) or a bug from scipy.")
+                  (e.g., too many similar samples) or a bug from scipy. Providing xticks option may solve this issue.")
         
         #Adding labels
         for (_x, _y,_rot), label in zip(label_coords, Z2['ivl']):
@@ -163,7 +179,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
     if colorlabels != None:
         if len(Z2['ivl'])!=len(label_coords):
             print("Warning several labels (samples) may be missing in the tree. This may be due to the data structure you have \
-                  (e.g., too many similar samples) or a bug from scipy.")
+                  (e.g., too many similar samples) or a bug from scipy. Providing xticks option may solve this issue.")
         
         j=0
         outerrad=R*1.05+width*len(colorlabels)+space*(len(colorlabels)-1)
@@ -210,7 +226,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
     elif sample_classes!=None:
         if len(Z2['ivl'])!=len(label_coords):
             print("Warning several labels (samples) may be missing in the tree. This may be due to the data structure you have \
-                  (e.g., too many similar samples) or a bug from scipy.")
+                  (e.g., too many similar samples) or a bug from scipy. Providing xticks option may solve this.")
         j=0
         outerrad=R*1.05+width*len(sample_classes)+space*(len(sample_classes)-1)
         print(outerrad)
@@ -292,9 +308,9 @@ def pandas_plot(df):
 
 if __name__=="__main__":
     # Generate random features and distance matrix.
-    test=2
+    test=3
     np.random.seed(1)
-    numleaf=200
+    numleaf=20
     _alphabets=[chr(i) for i in range(97, 97+24)]
     labels=sorted(["".join(list(np.random.choice(_alphabets, 10))) for i in range(numleaf)])
     x = np.random.rand(numleaf)
@@ -329,6 +345,20 @@ if __name__=="__main__":
         type_list=["ex"+str(i) for i in range(type_num)]
         sample_classes={"example_color": [np.random.choice(type_list) for i in range(numleaf)]}
         plot(Z2, sample_classes=sample_classes)
+    elif test==3:
+        D = np.zeros([numleaf,numleaf])
+        D[0,0]=1
+        D[5,10]=1
+        
+        Y = sch.linkage(D, method='ward')
+        _fig, _ax=plt.subplots()
+        Z2 = sch.dendrogram(Y,labels=labels, ax=_ax)
+        xticks=set(_ax.get_xticks())
+        plt.close(_fig) 
+        type_num=6
+        type_list=["ex"+str(i) for i in range(type_num)]
+        sample_classes={"example_color": [np.random.choice(type_list) for i in range(numleaf)]}
+        plot(Z2, sample_classes=sample_classes, xticks=xticks)
     elif test==0:
         Y = sch.linkage(D, method='single')
         Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
