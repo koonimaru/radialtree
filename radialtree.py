@@ -90,6 +90,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
     label_coords=[]
     labels=[]
     for x, y, c, label in sorted(zip(Z2['icoord'], Z2['dcoord'],Z2["color_list"], Z2['ivl']) ):
+        print(label)
     #x, y = Z2['icoord'][0], Z2['dcoord'][0]
         _color=cmap[ucolors.index(c)]
         if c=="C0": #np.abs(_xr1)<0.000000001 and np.abs(_yr1) <0.000000001:
@@ -154,7 +155,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
                   (e.g., too many similar samples) or a bug from scipy.")
         
         #Adding labels
-        for (_x, _y,_rot), label in zip(label_coords, labels):
+        for (_x, _y,_rot), label in zip(label_coords, Z2['leaves']):
             plt.text(_x, _y, label,{'va': 'center'},rotation_mode='anchor', rotation=_rot,fontsize=fontsize)
     
     
@@ -182,7 +183,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
         colorpos=intervals#np.ones([len(label_coords)])
         labelnames=[]
         for labelname, colorlist in colorlabels.items():
-            colorlist=np.array(colorlist)[labels]
+            colorlist=np.array(colorlist)[Z2['leaves']]
             if j!=0:
                 outerrad=outerrad-width-space
             innerrad=outerrad-width
@@ -233,7 +234,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
             type_num=len(ucolors)
             _cmp=cm.get_cmap(colormap_list[j], type_num)
             _colorlist=[_cmp(ucolors.index(c)/(type_num-1)) for c in colorlist]
-            _colorlist=np.array(_colorlist)[labels]
+            _colorlist=np.array(_colorlist)[Z2['leaves']]
             if j!=0:
                 outerrad=outerrad-width-space
             innerrad=outerrad-width
@@ -291,7 +292,7 @@ def pandas_plot(df):
 
 if __name__=="__main__":
     # Generate random features and distance matrix.
-    test=0
+    test=2
     np.random.seed(1)
     numleaf=200
     _alphabets=[chr(i) for i in range(97, 97+24)]
