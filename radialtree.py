@@ -90,7 +90,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
     label_coords=[]
     labels=[]
     for x, y, c in sorted(zip(Z2['icoord'], Z2['dcoord'],Z2["color_list"]) ):
-        print(label)
+        
     #x, y = Z2['icoord'][0], Z2['dcoord'][0]
         _color=cmap[ucolors.index(c)]
         if c=="C0": #np.abs(_xr1)<0.000000001 and np.abs(_yr1) <0.000000001:
