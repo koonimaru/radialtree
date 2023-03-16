@@ -88,7 +88,8 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
     fig, ax=plt.subplots(figsize=figsize)
     i=0
     label_coords=[]
-    for x, y, c in sorted(zip(Z2['icoord'], Z2['dcoord'],Z2["color_list"])):
+    labels=[]
+    for x, y, c, label in sorted(zip(Z2['icoord'], Z2['dcoord'],Z2["color_list"], Z2['ivl']) ):
     #x, y = Z2['icoord'][0], Z2['dcoord'][0]
         _color=cmap[ucolors.index(c)]
         if c=="C0": #np.abs(_xr1)<0.000000001 and np.abs(_yr1) <0.000000001:
@@ -138,24 +139,30 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
         if y[0]==0:
             label_coords.append([(1.05+offset)*_xr0, (1.05+offset)*_yr0,360*x[0]/xmax])
             #plt.text(1.05*_xr0, 1.05*_yr0, Z2['ivl'][i],{'va': 'center'},rotation_mode='anchor', rotation=360*x[0]/xmax)
+            labels.append(label)
             i+=1
         if y[3]==0:
             label_coords.append([(1.05+offset)*_xr3, (1.05+offset)*_yr3,360*x[2]/xmax])
             #plt.text(1.05*_xr3, 1.05*_yr3, Z2['ivl'][i],{'va': 'center'},rotation_mode='anchor', rotation=360*x[2]/xmax)
+            labels.append(label)
             i+=1
     
 
     if addlabels==True:
-        assert len(Z2['ivl'])==len(label_coords), "Internal error, label numbers "+str(len(Z2['ivl'])) +" and "+str(len(label_coords))+" must be equal!" 
+        if len(Z2['ivl'])!=len(label_coords):
+            print("Warning several labels (samples) may be missing in the tree. This may be due to the data structure you have \
+                  (e.g., too many similar samples) or a bug from scipy.")
         
         #Adding labels
-        for (_x, _y,_rot), label in zip(label_coords, Z2['ivl']):
+        for (_x, _y,_rot), label in zip(label_coords, labels):
             plt.text(_x, _y, label,{'va': 'center'},rotation_mode='anchor', rotation=_rot,fontsize=fontsize)
     
     
     
     if colorlabels != None:
-        assert len(Z2['ivl'])==len(label_coords), "Internal error, label numbers "+str(len(Z2['ivl'])) +" and "+str(len(label_coords))+" must be equal!" 
+        if len(Z2['ivl'])!=len(label_coords):
+            print("Warning several labels (samples) may be missing in the tree. This may be due to the data structure you have \
+                  (e.g., too many similar samples) or a bug from scipy.")
         
         j=0
         outerrad=R*1.05+width*len(colorlabels)+space*(len(colorlabels)-1)
@@ -175,7 +182,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
         colorpos=intervals#np.ones([len(label_coords)])
         labelnames=[]
         for labelname, colorlist in colorlabels.items():
-            colorlist=np.array(colorlist)[Z2['leaves']]
+            colorlist=np.array(colorlist)[labels]
             if j!=0:
                 outerrad=outerrad-width-space
             innerrad=outerrad-width
@@ -200,8 +207,9 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
                        title=labelname)
                 plt.gca().add_artist(leg)   
     elif sample_classes!=None:
-        assert len(Z2['ivl'])==len(label_coords), "Internal error, label numbers "+str(len(Z2['ivl'])) +" and "+str(len(label_coords))+" must be equal!" 
-        
+        if len(Z2['ivl'])!=len(label_coords):
+            print("Warning several labels (samples) may be missing in the tree. This may be due to the data structure you have \
+                  (e.g., too many similar samples) or a bug from scipy.")
         j=0
         outerrad=R*1.05+width*len(sample_classes)+space*(len(sample_classes)-1)
         print(outerrad)
@@ -225,7 +233,7 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
             type_num=len(ucolors)
             _cmp=cm.get_cmap(colormap_list[j], type_num)
             _colorlist=[_cmp(ucolors.index(c)/(type_num-1)) for c in colorlist]
-            _colorlist=np.array(_colorlist)[Z2['leaves']]
+            _colorlist=np.array(_colorlist)[labels]
             if j!=0:
                 outerrad=outerrad-width-space
             innerrad=outerrad-width
