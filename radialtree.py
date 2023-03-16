@@ -140,12 +140,12 @@ def plot(Z2,fontsize=8,figsize=None, pallete="gist_rainbow", addlabels=True, sho
         if y[0]==0:
             label_coords.append([(1.05+offset)*_xr0, (1.05+offset)*_yr0,360*x[0]/xmax])
             #plt.text(1.05*_xr0, 1.05*_yr0, Z2['ivl'][i],{'va': 'center'},rotation_mode='anchor', rotation=360*x[0]/xmax)
-            labels.append(label)
+            #labels.append(label)
             i+=1
         if y[3]==0:
             label_coords.append([(1.05+offset)*_xr3, (1.05+offset)*_yr3,360*x[2]/xmax])
             #plt.text(1.05*_xr3, 1.05*_yr3, Z2['ivl'][i],{'va': 'center'},rotation_mode='anchor', rotation=360*x[2]/xmax)
-            labels.append(label)
+            #labels.append(label)
             i+=1
     
 
