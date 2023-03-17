@@ -6,6 +6,7 @@ radialtree is a python module to draw a circular dendrogram using a output from 
 ![example](example.png "example")
 
 ## Install
+
 ```bash
 git clone https://github.com/koonimaru/radialtree.git
 cd radialtree
@@ -15,6 +16,7 @@ Please note that radialtree is now integreated into [omniplot](https://github.co
 
 
 ## Example usage
+
 ```python
 import scipy.cluster.hierarchy as sch
 import numpy as np
@@ -35,7 +37,9 @@ Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
 # plot a circular dendrogram
 rt.plot(Z2)
 ```
+
 ## Example usage 2 (adding color labels to the tree.)
+
 ```python
 import scipy.cluster.hierarchy as sch
 import numpy as np
@@ -69,9 +73,11 @@ Y = sch.linkage(D, method='single')
 Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
 rt.plot(Z2, colorlabels=colors_dict,colorlabels_legend=colors_legends)
 ```
+
 ![example2](example2.png "example2")
 
 ## Example usage 3 (adding color labels to the tree automatically (rather simpler than Example 2).)
+
 ```python
 import scipy.cluster.hierarchy as sch
 import numpy as np
@@ -94,3 +100,33 @@ type_list=["ex"+str(i) for i in range(type_num)]
 sample_classes={"example_color": [np.random.choice(type_list) for i in range(numleaf)]}
 rt.plot(Z2, sample_classes=sample_classes)
 ```
+
+## Example usage 4 (Emebedding the radial tree in a figure)
+
+```python
+import scipy.cluster.hierarchy as sch
+import numpy as np
+import radialtree as rt
+from seaborn import load_dataset
+import matplotlib.pyplot as plt
+
+#get a simple dataset
+iris = load_dataset("iris")
+species = iris.pop("species")
+
+fig, axes = plt.subplots(2, 1, figsize=(10, 10))
+# Compute and plot the dendrogram.
+Y = sch.linkage(np.asarray(iris), method="average")
+Z2 = sch.dendrogram(
+    Y,
+    # no_plot=True,
+    ax=axes[0],
+    color_threshold=1.0,
+)
+
+axes[1].set_aspect(1)
+# plot a circular dendrogram
+rt.radialTreee(Z2, ax=axes[1], sample_classes={"species": species})
+```
+
+![example4](example4.png "example4")
