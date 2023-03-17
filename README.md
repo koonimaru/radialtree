@@ -7,9 +7,13 @@ radialtree is a python module to draw a circular dendrogram using a output from 
 
 ## Install
 
-git clone <https://github.com/koonimaru/radialtree.git> <br>
-cd radialtree <br>
+```bash
+git clone https://github.com/koonimaru/radialtree.git
+cd radialtree
 pip install .
+```
+Please note that radialtree is now integreated into [omniplot](https://github.com/koonimaru/omniplot) module with an improvement. 
+
 
 ## Example usage
 
@@ -79,6 +83,16 @@ import scipy.cluster.hierarchy as sch
 import numpy as np
 import radialtree as rt
 np.random.seed(1)
+
+numleaf=200
+_alphabets=[chr(i) for i in range(97, 97+24)]
+labels=sorted(["".join(list(np.random.choice(_alphabets, 10))) for i in range(numleaf)])
+x = np.random.rand(numleaf)
+D = np.zeros([numleaf,numleaf])
+for i in range(numleaf):
+    for j in range(numleaf):
+        D[i,j] = abs(x[i] - x[j])
+        
 Y = sch.linkage(D, method='single')
 Z2 = sch.dendrogram(Y,labels=labels,no_plot=True)
 type_num=6

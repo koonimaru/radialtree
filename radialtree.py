@@ -10,6 +10,7 @@ from matplotlib.lines import Line2D
 # import seaborn as sns
 # sns.set_theme()
 
+
 colormap_list = [
     "nipy_spectral",
     "terrain",
@@ -33,6 +34,7 @@ def radialTreee(
     colorlabels=None,
     colorlabels_legend=None,
 ):
+
     """
     Drawing a radial dendrogram from a scipy dendrogram output.
     Parameters
@@ -43,9 +45,11 @@ def radialTreee(
         A bool to choose if labels are shown.
     fontsize : float
         A float to specify the font size
+
     ax : Axes or None:
         Axes in which to draw the plot, otherwise use the currently-active Axes.
     pallete : string
+
         Matlab colormap name.
     sample_classes : dict
         A dictionary that contains lists of sample subtypes or classes. These classes appear
@@ -81,6 +85,7 @@ def radialTreee(
     R = 1
     width = R * 0.1
     space = R * 0.05
+
     if colorlabels != None:
         offset = (
             width * len(colorlabels) / R + space * (len(colorlabels) - 1) / R + 0.05
@@ -94,6 +99,7 @@ def radialTreee(
         )
         print(offset)
     else:
+
         offset = 0
 
     xmax = np.amax(Z2["icoord"])
@@ -203,6 +209,7 @@ def radialTreee(
 
         j = 0
         outerrad = R * 1.05 + width * len(colorlabels) + space * (len(colorlabels) - 1)
+
         print(outerrad)
         # sort_index=np.argsort(Z2['icoord'])
         # print(sort_index)
@@ -219,6 +226,7 @@ def radialTreee(
         colorpos = intervals  # np.ones([len(label_coords)])
         labelnames = []
         for labelname, colorlist in colorlabels.items():
+
             colorlist = np.array(colorlist)[Z2["leaves"]]
             outerrad = outerrad - width * j - space * j
             innerrad = outerrad - width
@@ -234,6 +242,7 @@ def radialTreee(
                 ),
             )
 
+
             labelnames.append(labelname)
             j += 1
 
@@ -243,6 +252,7 @@ def radialTreee(
                 colorlines = []
                 for c in colorlabels_legend[labelname]["colors"]:
                     colorlines.append(Line2D([0], [0], color=c, lw=4))
+
                 leg = ax.legend(
                     colorlines,
                     colorlabels_legend[labelname]["labels"],
@@ -263,6 +273,7 @@ def radialTreee(
         outerrad = (
             R * 1.05 + width * len(sample_classes) + space * (len(sample_classes) - 1)
         )
+
         print(outerrad)
         # sort_index=np.argsort(Z2['icoord'])
         # print(sort_index)
@@ -280,6 +291,7 @@ def radialTreee(
         labelnames = []
         colorlabels_legend = {}
         for labelname, colorlist in sample_classes.items():
+
             ucolors = sorted(list(np.unique(colorlist)))
             type_num = len(ucolors)
             _cmp = cm.get_cmap(colormap_list[j], type_num)
@@ -298,6 +310,7 @@ def radialTreee(
                     # edgecolor='w', #if this is active the wedges will be more clearly separated
                 ),
             )
+
 
             labelnames.append(labelname)
             colorlabels_legend[labelname] = {}
@@ -518,6 +531,7 @@ def _test_3(Z2):
 
 if __name__ == "__main__":
     # Generate random features and distance matrix.
+
     test = [0, 1, 2, 3]
     np.random.seed(1)
     numleaf = 200
@@ -525,10 +539,12 @@ if __name__ == "__main__":
     labels = sorted(
         ["".join(list(np.random.choice(_alphabets, 10))) for i in range(numleaf)]
     )
+
     x = np.random.rand(numleaf)
     D = np.zeros([numleaf, numleaf])
     for i in range(numleaf):
         for j in range(numleaf):
+
             D[i, j] = abs(x[i] - x[j])
     Y = sch.linkage(D, method="single")
     Z2 = sch.dendrogram(Y, labels=labels, no_plot=True)
@@ -545,3 +561,4 @@ if __name__ == "__main__":
         _test_2(Z2)
 
     plt.show()
+
