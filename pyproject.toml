@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+
+[project]
+name = "radialtree"
+version = "0.2.0"
+authors = [
+  { name="Koh", email="koh.onimaru@gmail.com" },
+]
+description = "A radial tree plotter for Python"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  'numpy', 'matplotlib','scipy'
+]
+[project.optional-dependencies]
+dev = ["icecream"]
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
